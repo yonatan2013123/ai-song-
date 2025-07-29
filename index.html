@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Text to Singing with Effects</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #4a90e2, #9013fe);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      border-radius: 10px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 10px;
+      font-weight: 700;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    }
+    textarea {
+      width: 100%;
+      height: 160px;
+      font-size: 18px;
+      padding: 15px;
+      border-radius: 8px;
+      border: none;
+      resize: vertical;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.25);
+      font-weight: 600;
+      color: #222;
+    }
+    button {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: 700;
+      padding: 15px 30px;
+      background-color: #ff4081;
+      border: none;
+      border-radius: 50px;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(255, 64, 129, 0.5);
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #e91e63;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>Write Your Lyrics & I'll Sing with Effects!</h1>
+  <textarea id="lyricsInput" placeholder="Type your lyrics here..."></textarea>
+  <br />
+  <button id="speakBtn">Sing It!</button>
+
+  <footer>Powered by Web Speech API | Demo by ChatGPT</footer>
+
+  <script>
+    const speakBtn = document.getElementById('speakBtn');
+    const lyricsInput = document.getElementById('lyricsInput');
+
+    // רשימות מילים שמחות ועצובות לדוגמה (אפשר להרחיב)
+    const happyWords = ['burn', 'prayer', 'love', 'flame', 'light', 'rise', 'fire', 'hope', 'shine'];
+    const sadWords = ['sin', 'forbidden', 'silence', 'damned', 'shame', 'dark', 'pain', 'rain'];
+
+    // פונקציה שמחזירה פיץ' לפי מילה
+    function getPitchForWord(word) {
+      if (happyWords.includes(word.toLowerCase())) return 1.5;
+      if (sadWords.includes(word.toLowerCase())) return 0.7;
+      return 1.0;
+    }
+
+    // פונקציה שמדברת מילה אחרי מילה עם אפקטים
+    async function speakWithEffects(text) {
+      const words = text.split(/\s+/).filter(w => w.length > 0);
+      for (const word of words) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'en-US';
+        utterance.pitch = getPitchForWord(word);
+        utterance.rate = 1;
+        utterance.volume = 1;
+
+        // מחזיר הבטחה שמסתיימת כשהמילה הושמעה
+        await new Promise(resolve => {
+          utterance.onend = resolve;
+          window.speechSynthesis.speak(utterance);
+        });
+      }
+    }
+
+    speakBtn.addEventListener('click', () => {
+      const text = lyricsInput.value.trim();
+      if (!text) {
+        alert('Please write some lyrics first!');
+        return;
+      }
+
+      // מבטל כל דיבור שעדיין פעיל
+      if(window.speechSynthesis.speaking){
+        window.speechSynthesis.cancel();
+      }
+
+      speakWithEffects(text);
+    });
+  </script>
+</body>
+</html>

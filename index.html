@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>עורך קוד אישי</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #1a1a2e;
@@ -16,7 +15,6 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            transition: background-color 0.5s ease;
         }
 
         .header {
@@ -25,7 +23,6 @@
             text-align: center;
             border-bottom: 2px solid #285483;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            position: relative;
         }
         
         .header h1 {
@@ -38,30 +35,61 @@
 
         .main-container {
             display: flex;
+            flex-direction: column;
             flex: 1;
         }
-        
-        .editor-panel {
-            width: 50%;
+
+        .code-editors-container {
             display: flex;
-            flex-direction: column;
-            border-right: 2px solid #285483;
+            flex-grow: 1; /* כדי שיתפוס את השטח הריק */
+            border-bottom: 2px solid #285483;
             position: relative;
         }
-
-        .check-button-container {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            padding: 10px;
-            text-align: center;
-            background-color: #1a1a2e;
-            z-index: 10;
-            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+        
+        .editor-container {
+            width: calc(100% / 3); /* מחלק את השטח לשלושה חלקים שווים */
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #285483;
         }
 
+        .editor-container:last-child {
+            border-left: none; /* כדי שהמסגרת לא תהיה כפולה */
+        }
+        
+        .editor-label {
+            background-color: #1f2a4a;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 1em;
+            color: #d4d4d4;
+            border-bottom: 1px solid #285483;
+            direction: ltr;
+        }
+
+        .editor-textarea {
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #1a1a2e;
+            color: #a9b7c6;
+            border: none;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            direction: ltr;
+            line-height: 1.6;
+        }
+        
+        .run-button-container {
+            background-color: #1f2a4a;
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid #285483;
+        }
+        
         .check-button {
             padding: 10px 25px;
             font-size: 1.1em;
@@ -78,64 +106,10 @@
             background-color: #2ecc71;
             transform: scale(1.05);
         }
-
-        .editor-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #285483;
-            transition: background-color 0.3s ease;
-        }
-        
-        .editor-container:hover {
-            background-color: #1f2a4a;
-        }
-
-        .editor-container:last-child {
-            border-bottom: none;
-        }
-
-        .editor-label {
-            background-color: #1f2a4a;
-            padding: 12px 20px;
-            font-weight: 700;
-            font-size: 1em;
-            color: #d4d4d4;
-            border-bottom: 1px solid #285483;
-            direction: ltr;
-        }
-        
-        .editor-label span {
-            color: #e43f5a;
-        }
-
-        .editor-textarea {
-            flex: 1;
-            width: 100%;
-            box-sizing: border-box;
-            background-color: #1a1a2e;
-            color: #a9b7c6;
-            border: none;
-            padding: 15px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 15px;
-            resize: none;
-            outline: none;
-            direction: ltr;
-            line-height: 1.6;
-            transition: background-color 0.3s ease;
-        }
-        
-        .editor-textarea:focus {
-            background-color: #1f2a4a;
-        }
-        
-        .editor-textarea.html { color: #569cd6; }
-        .editor-textarea.css { color: #ffc663; }
-        .editor-textarea.js { color: #c3e88d; }
         
         .result-panel {
-            width: 50%;
+            flex-grow: 1;
+            border-top: 2px solid #285483;
         }
         
         .result-iframe {
@@ -153,22 +127,22 @@
     </div>
 
     <div class="main-container">
-        <div class="editor-panel">
+        <div class="code-editors-container">
             <div class="editor-container">
-                <div class="editor-label">HTML <span>&lt; &gt;</span></div>
-                <textarea id="html-editor" class="editor-textarea html" spellcheck="false" placeholder="כתוב כאן את קוד ה-HTML שלך..."></textarea>
-            </div>
-            <div class="editor-container">
-                <div class="editor-label">CSS <span>{ }</span></div>
-                <textarea id="css-editor" class="editor-textarea css" spellcheck="false" placeholder="כתוב כאן את קוד ה-CSS שלך..."></textarea>
+                <div class="editor-label">HTML</div>
+                <textarea id="html-editor" class="editor-textarea" spellcheck="false" placeholder="כתוב כאן את קוד ה-HTML שלך..."></textarea>
             </div>
             <div class="editor-container">
-                <div class="editor-label">JavaScript <span>;</span></div>
-                <textarea id="js-editor" class="editor-textarea js" spellcheck="false" placeholder="כתוב כאן את קוד ה-JavaScript שלך..."></textarea>
+                <div class="editor-label">CSS</div>
+                <textarea id="css-editor" class="editor-textarea" spellcheck="false" placeholder="כתוב כאן את קוד ה-CSS שלך..."></textarea>
             </div>
-            <div class="check-button-container">
-                <button class="check-button" id="run-code">בדוק</button>
+            <div class="editor-container">
+                <div class="editor-label">JavaScript</div>
+                <textarea id="js-editor" class="editor-textarea" spellcheck="false" placeholder="כתוב כאן את קוד ה-JavaScript שלך..."></textarea>
             </div>
+        </div>
+        <div class="run-button-container">
+            <button class="check-button" id="run-code">הצג תוצאה</button>
         </div>
         <div class="result-panel">
             <iframe id="result-frame" class="result-iframe"></iframe>

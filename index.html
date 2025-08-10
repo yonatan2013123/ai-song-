@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>עורך קוד אישי - יוקרתי</title>
+    <title>עורך קוד אישי</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -25,6 +25,7 @@
             text-align: center;
             border-bottom: 2px solid #285483;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
         
         .header h1 {
@@ -45,8 +46,39 @@
             display: flex;
             flex-direction: column;
             border-right: 2px solid #285483;
+            position: relative;
         }
-        
+
+        .check-button-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            background-color: #1a1a2e;
+            z-index: 10;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .check-button {
+            padding: 10px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            background-color: #27ae60;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .check-button:hover {
+            background-color: #2ecc71;
+            transform: scale(1.05);
+        }
+
         .editor-container {
             flex: 1;
             display: flex;
@@ -97,11 +129,10 @@
         .editor-textarea:focus {
             background-color: #1f2a4a;
         }
-
-        /* Syntax Highlighting (enhanced) */
-        .editor-textarea.html { color: #569cd6; } /* כחול */
-        .editor-textarea.css { color: #ffc663; } /* צהוב */
-        .editor-textarea.js { color: #c3e88d; } /* ירוק */
+        
+        .editor-textarea.html { color: #569cd6; }
+        .editor-textarea.css { color: #ffc663; }
+        .editor-textarea.js { color: #c3e88d; }
         
         .result-panel {
             width: 50%;
@@ -135,6 +166,9 @@
                 <div class="editor-label">JavaScript <span>;</span></div>
                 <textarea id="js-editor" class="editor-textarea js" spellcheck="false" placeholder="כתוב כאן את קוד ה-JavaScript שלך..."></textarea>
             </div>
+            <div class="check-button-container">
+                <button class="check-button" id="run-code">בדוק</button>
+            </div>
         </div>
         <div class="result-panel">
             <iframe id="result-frame" class="result-iframe"></iframe>
@@ -146,11 +180,12 @@
         const cssEditor = document.getElementById('css-editor');
         const jsEditor = document.getElementById('js-editor');
         const resultFrame = document.getElementById('result-frame');
+        const runCodeButton = document.getElementById('run-code');
 
         function updateOutput() {
             const htmlCode = htmlEditor.value;
-            const cssCode = `<style>${cssEditor.value}</style>`;
-            const jsCode = `<script>${jsEditor.value}</script>`;
+            const cssCode = cssEditor.value ? `<style>${cssEditor.value}</style>` : '';
+            const jsCode = jsEditor.value ? `<script>${jsEditor.value}</script>` : '';
             
             const fullCode = `
                 <!DOCTYPE html>
@@ -170,11 +205,7 @@
             resultFrame.srcdoc = fullCode;
         }
 
-        htmlEditor.addEventListener('input', updateOutput);
-        cssEditor.addEventListener('input', updateOutput);
-        jsEditor.addEventListener('input', updateOutput);
-        
-        updateOutput();
+        runCodeButton.addEventListener('click', updateOutput);
     </script>
 </body>
 </html>

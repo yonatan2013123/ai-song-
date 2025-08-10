@@ -1,111 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sing My Lyrics 🎤</title>
-  <style>
-    body {
-      background: linear-gradient(135deg, #222, #444);
-      font-family: 'Segoe UI', sans-serif;
-      color: #fff;
-      max-width: 700px;
-      margin: 60px auto;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-      color: #ffcc00;
-      text-shadow: 1px 1px 10px #000;
-    }
-    textarea {
-      width: 100%;
-      height: 160px;
-      font-size: 18px;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 10px;
-      border: none;
-      resize: vertical;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-      font-weight: 500;
-      color: #222;
-    }
-    button {
-      margin-top: 25px;
-      font-size: 20px;
-      font-weight: bold;
-      padding: 15px 40px;
-      background-color: #ff4081;
-      border: none;
-      border-radius: 30px;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s ease;
-      box-shadow: 0 5px 15px rgba(255,64,129,0.5);
-    }
-    button:hover {
-      background-color: #e91e63;
-    }
-    footer {
-      margin-top: 50px;
-      font-size: 14px;
-      color: #aaa;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עורך קוד אישי - יוקרתי</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        .header {
+            background-color: #162447;
+            padding: 15px 30px;
+            text-align: center;
+            border-bottom: 2px solid #285483;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #e43f5a;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .editor-panel {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #285483;
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #285483;
+            transition: background-color 0.3s ease;
+        }
+        
+        .editor-container:hover {
+            background-color: #1f2a4a;
+        }
+
+        .editor-container:last-child {
+            border-bottom: none;
+        }
+
+        .editor-label {
+            background-color: #1f2a4a;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 1em;
+            color: #d4d4d4;
+            border-bottom: 1px solid #285483;
+            direction: ltr;
+        }
+        
+        .editor-label span {
+            color: #e43f5a;
+        }
+
+        .editor-textarea {
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #1a1a2e;
+            color: #a9b7c6;
+            border: none;
+            padding: 15px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            direction: ltr;
+            line-height: 1.6;
+            transition: background-color 0.3s ease;
+        }
+        
+        .editor-textarea:focus {
+            background-color: #1f2a4a;
+        }
+
+        /* Syntax Highlighting (enhanced) */
+        .editor-textarea.html { color: #569cd6; } /* כחול */
+        .editor-textarea.css { color: #ffc663; } /* צהוב */
+        .editor-textarea.js { color: #c3e88d; } /* ירוק */
+        
+        .result-panel {
+            width: 50%;
+        }
+        
+        .result-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #ffffff;
+        }
+    </style>
 </head>
 <body>
-  <h1>Sing My Lyrics 🎤</h1>
-  <textarea id="lyricsInput" placeholder="Write your lyrics here..."></textarea>
-  <br />
-  <button id="speakBtn">Sing It!</button>
 
-  <footer>Made by Yoni ✨ | Powered by Web Speech API</footer>
+    <div class="header">
+        <h1>עורך קוד אישי</h1>
+    </div>
 
-  <script>
-    const speakBtn = document.getElementById('speakBtn');
-    const lyricsInput = document.getElementById('lyricsInput');
+    <div class="main-container">
+        <div class="editor-panel">
+            <div class="editor-container">
+                <div class="editor-label">HTML <span>&lt; &gt;</span></div>
+                <textarea id="html-editor" class="editor-textarea html" spellcheck="false" placeholder="כתוב כאן את קוד ה-HTML שלך..."></textarea>
+            </div>
+            <div class="editor-container">
+                <div class="editor-label">CSS <span>{ }</span></div>
+                <textarea id="css-editor" class="editor-textarea css" spellcheck="false" placeholder="כתוב כאן את קוד ה-CSS שלך..."></textarea>
+            </div>
+            <div class="editor-container">
+                <div class="editor-label">JavaScript <span>;</span></div>
+                <textarea id="js-editor" class="editor-textarea js" spellcheck="false" placeholder="כתוב כאן את קוד ה-JavaScript שלך..."></textarea>
+            </div>
+        </div>
+        <div class="result-panel">
+            <iframe id="result-frame" class="result-iframe"></iframe>
+        </div>
+    </div>
 
-    const happyWords = ['burn', 'light', 'shine', 'fire', 'hope', 'love', 'flame', 'sun'];
-    const sadWords = ['dark', 'shame', 'rain', 'sin', 'damned', 'pain', 'cry', 'lonely'];
+    <script>
+        const htmlEditor = document.getElementById('html-editor');
+        const cssEditor = document.getElementById('css-editor');
+        const jsEditor = document.getElementById('js-editor');
+        const resultFrame = document.getElementById('result-frame');
 
-    function getPitchForWord(word) {
-      if (happyWords.includes(word.toLowerCase())) return 1.5;
-      if (sadWords.includes(word.toLowerCase())) return 0.7;
-      return 1.0;
-    }
+        function updateOutput() {
+            const htmlCode = htmlEditor.value;
+            const cssCode = `<style>${cssEditor.value}</style>`;
+            const jsCode = `<script>${jsEditor.value}</script>`;
+            
+            const fullCode = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Preview</title>
+                    ${cssCode}
+                </head>
+                <body>
+                    ${htmlCode}
+                    ${jsCode}
+                </body>
+                </html>
+            `;
+            
+            resultFrame.srcdoc = fullCode;
+        }
 
-    async function speakWithEffects(text) {
-      const words = text.split(/\s+/).filter(w => w.length > 0);
-      for (const word of words) {
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.lang = 'en-US';
-        utterance.pitch = getPitchForWord(word);
-        utterance.rate = 1;
-        utterance.volume = 1;
-
-        await new Promise(resolve => {
-          utterance.onend = resolve;
-          window.speechSynthesis.speak(utterance);
-        });
-      }
-    }
-
-    speakBtn.addEventListener('click', () => {
-      const text = lyricsInput.value.trim();
-      if (!text) {
-        alert('Please write something first!');
-        return;
-      }
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-      }
-      speakWithEffects(text);
-    });
-  </script>
+        htmlEditor.addEventListener('input', updateOutput);
+        cssEditor.addEventListener('input', updateOutput);
+        jsEditor.addEventListener('input', updateOutput);
+        
+        updateOutput();
+    </script>
 </body>
 </html>

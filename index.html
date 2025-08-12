@@ -1,119 +1,338 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>עורך תמונות בסיסי - SwiftClip</title>
-    <script src="https://unpkg.com/konva@8.3.1/konva.min.js"></script>
-    <style>
-        body {
-            font-family: 'Assistant', sans-serif;
-            text-align: center;
-            background-color: #f0f2f5;
-            padding: 20px;
-        }
-        #editor-container {
-            width: 800px;
-            height: 600px;
-            margin: 20px auto;
-            border: 2px solid #ddd;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            background-color: #fff;
-            position: relative;
-        }
-        #tools {
-            margin-bottom: 20px;
-        }
-        button, input[type="file"] {
-            font-size: 16px;
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-        }
-        #image-preview {
-            max-width: 100%;
-            max-height: 100%;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SwiftClip - Advanced Editor</title>
+<style>
+  body {
+    margin: 0; background: #121212; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+  }
+  header {
+    padding: 1rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4fc3f7;
+    user-select: none;
+  }
+  #editor {
+    background: #222;
+    border-radius: 8px;
+    padding: 1rem;
+    max-width: 700px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  canvas {
+    border-radius: 4px;
+    background: #111;
+    display: block;
+    margin: 0 auto;
+  }
+  .controls {
+    margin-top: 12px;
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  }
+  .controls > * {
+    background: #333;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: #eee;
+    cursor: pointer;
+    font-size: 1rem;
+    user-select: none;
+  }
+  .controls > input[type="range"] {
+    width: 140px;
+    cursor: pointer;
+  }
+  #stickers {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  .sticker-btn {
+    font-size: 28px;
+    cursor: pointer;
+    user-select: none;
+    background: #444;
+    border-radius: 6px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+  }
+  .sticker-btn:hover {
+    background-color: #4fc3f7;
+    color: #121212;
+  }
+  #fileInput {
+    display: none;
+  }
+  #exportBtn {
+    background: #4fc3f7;
+    color: #121212;
+    font-weight: bold;
+  }
+</style>
 </head>
 <body>
 
-    <h1>עורך תמונות בסיסי - SwiftClip</h1>
-    <p>העלה תמונה והוסף מדבקה פשוטה. זו הדגמה קטנה של תכונה אחת.</p>
+<header>SwiftClip</header>
 
-    <div id="tools">
-        <label for="image-upload">בחר תמונה:</label>
-        <input type="file" id="image-upload" accept="image/*">
-        <button id="add-sticker-btn">הוסף מדבקה (לב)</button>
-    </div>
+<div id="editor">
+  <canvas id="canvas" width="640" height="360"></canvas>
 
-    <div id="editor-container"></div>
+  <div class="controls">
+    <button id="uploadBtn">Upload Image/Video</button>
+    <button id="resetBtn">Reset</button>
 
-    <script>
-        const width = 800;
-        const height = 600;
+    <label title="Rotate">
+      Rotate
+      <input type="range" id="rotateRange" min="0" max="360" value="0" />
+    </label>
 
-        // יצירת הבמה (Stage) של Konva שבה הכל יקרה
-        const stage = new Konva.Stage({
-            container: 'editor-container',
-            width: width,
-            height: height,
+    <label title="Brightness">
+      Brightness
+      <input type="range" id="brightnessRange" min="-1" max="1" step="0.05" value="0" />
+    </label>
+
+    <label title="Contrast">
+      Contrast
+      <input type="range" id="contrastRange" min="-1" max="1" step="0.05" value="0" />
+    </label>
+
+    <button id="exportBtn">Export Image</button>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/*,video/*" />
+
+  <div id="stickers" title="Add Stickers">
+    <div class="sticker-btn" data-type="emoji" data-value="🦄">🦄</div>
+    <div class="sticker-btn" data-type="emoji" data-value="🚀">🚀</div>
+    <div class="sticker-btn" data-type="emoji" data-value="✨">✨</div>
+    <div class="sticker-btn" data-type="emoji" data-value="🔥">🔥</div>
+    <div class="sticker-btn" data-type="emoji" data-value="🎉">🎉</div>
+    <!-- You can add image stickers by URL like this -->
+    <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Star" class="sticker-btn" data-type="image" data-value="https://cdn-icons-png.flaticon.com/512/616/616408.png" style="width:36px; height:36px;" />
+    <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="Heart" class="sticker-btn" data-type="image" data-value="https://cdn-icons-png.flaticon.com/512/833/833472.png" style="width:36px; height:36px;" />
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js" integrity="sha512-4wDXkYH3gRGrqkCFxG4wUBsYtLgQt3OcWZDLIFePx3xwdUk/Uvw6+S+13lZshhKo8zWykMCScYo/j3hv0M6o7A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  const canvas = new fabric.Canvas("canvas", {
+    preserveObjectStacking: true,
+    backgroundColor: "#121212",
+    selection: true,
+  });
+
+  let mediaObject = null; // fabric.Image or fabric.Video wrapper
+  let isVideo = false;
+  let videoElement = null;
+
+  // Upload and load image or video
+  const fileInput = document.getElementById("fileInput");
+  const uploadBtn = document.getElementById("uploadBtn");
+  uploadBtn.onclick = () => fileInput.click();
+
+  fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+
+    resetEditor();
+
+    if (file.type.startsWith("image")) {
+      isVideo = false;
+      fabric.Image.fromURL(url, (img) => {
+        img.set({
+          left: 0,
+          top: 0,
+          selectable: false,
+          evented: false,
         });
+        scaleToCanvas(img);
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+        mediaObject = img;
+      });
+    } else if (file.type.startsWith("video")) {
+      isVideo = true;
+      // Create video element
+      videoElement = document.createElement("video");
+      videoElement.src = url;
+      videoElement.crossOrigin = "anonymous";
+      videoElement.autoplay = true;
+      videoElement.loop = true;
+      videoElement.muted = true;
+      videoElement.playsInline = true;
 
-        const layer = new Konva.Layer();
-        stage.add(layer);
-
-        let imageNode = null;
-
-        // פונקציה להעלאת תמונה
-        document.getElementById('image-upload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    // הסרת התמונה הקודמת אם קיימת
-                    if (imageNode) {
-                        imageNode.destroy();
-                    }
-                    
-                    // יצירת אובייקט תמונה ב-Konva
-                    imageNode = new Konva.Image({
-                        image: img,
-                        width: width,
-                        height: height,
-                        draggable: false // לא מאפשר גרירה של התמונה עצמה
-                    });
-                    layer.add(imageNode);
-                    layer.draw();
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
+      videoElement.onloadeddata = () => {
+        const videoFabric = new fabric.Image(videoElement, {
+          left: 0,
+          top: 0,
+          selectable: false,
+          evented: false,
+          scaleX: canvas.width / videoElement.videoWidth,
+          scaleY: canvas.height / videoElement.videoHeight,
         });
+        mediaObject = videoFabric;
+        canvas.setBackgroundImage(videoFabric, canvas.renderAll.bind(canvas));
+        animateVideo();
+      };
 
-        // פונקציה להוספת מדבקה (במקרה זה, טקסט פשוט)
-        document.getElementById('add-sticker-btn').addEventListener('click', function() {
-            if (!imageNode) {
-                alert('אנא העלה תמונה קודם!');
-                return;
-            }
+      videoElement.play();
+    }
+  };
 
-            const sticker = new Konva.Text({
-                x: width / 2,
-                y: height / 2,
-                text: '❤️',
-                fontSize: 100,
-                fill: 'red',
-                draggable: true // ניתן לגרור את המדבקה
-            });
-            layer.add(sticker);
-            layer.draw();
+  // Resize and center media to canvas size
+  function scaleToCanvas(obj) {
+    const scaleX = canvas.width / obj.width;
+    const scaleY = canvas.height / obj.height;
+    const scale = Math.min(scaleX, scaleY);
+    obj.scale(scale);
+    obj.set({
+      left: (canvas.width - obj.width * scale) / 2,
+      top: (canvas.height - obj.height * scale) / 2,
+    });
+  }
+
+  // Animate video background
+  function animateVideo() {
+    if (!isVideo || !videoElement) return;
+    canvas.setBackgroundImage(
+      new fabric.Image(videoElement, {
+        left: 0,
+        top: 0,
+        selectable: false,
+        evented: false,
+        scaleX: canvas.width / videoElement.videoWidth,
+        scaleY: canvas.height / videoElement.videoHeight,
+      }),
+      canvas.renderAll.bind(canvas)
+    );
+    canvas.renderAll();
+    requestAnimationFrame(animateVideo);
+  }
+
+  // Reset editor
+  function resetEditor() {
+    canvas.clear();
+    canvas.backgroundColor = "#121212";
+    canvas.renderAll();
+    mediaObject = null;
+    isVideo = false;
+    videoElement = null;
+    // Reset filters & controls
+    document.getElementById("rotateRange").value = 0;
+    document.getElementById("brightnessRange").value = 0;
+    document.getElementById("contrastRange").value = 0;
+  }
+
+  document.getElementById("resetBtn").onclick = resetEditor;
+
+  // Controls - rotation
+  document.getElementById("rotateRange").oninput = function () {
+    const deg = parseInt(this.value);
+    if (mediaObject) {
+      mediaObject.angle = deg;
+      canvas.renderAll();
+    }
+  };
+
+  // Filters - brightness & contrast
+  document.getElementById("brightnessRange").oninput = applyFilters;
+  document.getElementById("contrastRange").oninput = applyFilters;
+
+  function applyFilters() {
+    if (!mediaObject) return;
+    const brightnessVal = parseFloat(document.getElementById("brightnessRange").value);
+    const contrastVal = parseFloat(document.getElementById("contrastRange").value);
+
+    const filters = [];
+
+    if (brightnessVal !== 0) {
+      filters.push(new fabric.Image.filters.Brightness({ brightness: brightnessVal }));
+    }
+    if (contrastVal !== 0) {
+      filters.push(new fabric.Image.filters.Contrast({ contrast: contrastVal }));
+    }
+
+    mediaObject.filters = filters;
+    mediaObject.applyFilters();
+    canvas.renderAll();
+  }
+
+  // Add sticker
+  const stickersContainer = document.getElementById("stickers");
+  stickersContainer.addEventListener("click", (e) => {
+    const target = e.target;
+    if (!target.classList.contains("sticker-btn")) return;
+
+    const type = target.dataset.type;
+    const value = target.dataset.value;
+
+    if (type === "emoji") {
+      const text = new fabric.Text(value, {
+        left: canvas.width / 2,
+        top: canvas.height / 2,
+        fontSize: 48,
+        originX: "center",
+        originY: "center",
+        selectable: true,
+        hasControls: true,
+        cursorStyle: "pointer",
+        editable: false,
+      });
+      canvas.add(text);
+      canvas.setActiveObject(text);
+    } else if (type === "image") {
+      fabric.Image.fromURL(value, (img) => {
+        img.set({
+          left: canvas.width / 2,
+          top: canvas.height / 2,
+          originX: "center",
+          originY: "center",
+          scaleX: 0.3,
+          scaleY: 0.3,
+          selectable: true,
+          hasControls: true,
+          cursorStyle: "pointer",
         });
-    </script>
+        canvas.add(img);
+        canvas.setActiveObject(img);
+      });
+    }
+  });
+
+  // Export image (only works for images + stickers, video export is complex)
+  document.getElementById("exportBtn").onclick = () => {
+    // Remove video element for export if any
+    if (isVideo) {
+      alert("Export for video is not supported yet. Please upload an image.");
+      return;
+    }
+    // Deselect objects for clean export
+    canvas.discardActiveObject();
+    canvas.renderAll();
+
+    const dataURL = canvas.toDataURL({
+      format: "png",
+      quality: 1,
+    });
+    const a = document.createElement("a");
+    a.href = dataURL;
+    a.download = "swiftclip-export.png";
+    a.click();
+  };
+
+</script>
 
 </body>
 </html>
-

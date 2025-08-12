@@ -3,183 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>עורך קוד אישי</title>
+    <title>עורך תמונות בסיסי - SwiftClip</title>
+    <script src="https://unpkg.com/konva@8.3.1/konva.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #1a1a2e;
-            color: #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .header {
-            background-color: #162447;
-            padding: 15px 30px;
+            font-family: 'Assistant', sans-serif;
             text-align: center;
-            border-bottom: 2px solid #285483;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            background-color: #f0f2f5;
+            padding: 20px;
         }
-        
-        .header h1 {
-            margin: 0;
-            font-size: 1.8em;
-            color: #e43f5a;
-            letter-spacing: 2px;
-            font-weight: 700;
-        }
-
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .code-editors-container {
-            display: flex;
-            flex-grow: 1; /* כדי שיתפוס את השטח הריק */
-            border-bottom: 2px solid #285483;
+        #editor-container {
+            width: 800px;
+            height: 600px;
+            margin: 20px auto;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
             position: relative;
         }
-        
-        .editor-container {
-            width: calc(100% / 3); /* מחלק את השטח לשלושה חלקים שווים */
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #285483;
+        #tools {
+            margin-bottom: 20px;
         }
-
-        .editor-container:last-child {
-            border-left: none; /* כדי שהמסגרת לא תהיה כפולה */
-        }
-        
-        .editor-label {
-            background-color: #1f2a4a;
-            padding: 12px 20px;
-            font-weight: 700;
-            font-size: 1em;
-            color: #d4d4d4;
-            border-bottom: 1px solid #285483;
-            direction: ltr;
-        }
-
-        .editor-textarea {
-            flex: 1;
-            width: 100%;
-            box-sizing: border-box;
-            background-color: #1a1a2e;
-            color: #a9b7c6;
-            border: none;
-            padding: 15px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 15px;
-            resize: none;
-            outline: none;
-            direction: ltr;
-            line-height: 1.6;
-        }
-        
-        .run-button-container {
-            background-color: #1f2a4a;
-            padding: 15px;
-            text-align: center;
-            border-top: 1px solid #285483;
-        }
-        
-        .check-button {
-            padding: 10px 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-            color: white;
-            background-color: #27ae60;
-            border: none;
-            border-radius: 5px;
+        button, input[type="file"] {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
         }
-
-        .check-button:hover {
-            background-color: #2ecc71;
-            transform: scale(1.05);
-        }
-        
-        .result-panel {
-            flex-grow: 1;
-            border-top: 2px solid #285483;
-        }
-        
-        .result-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background-color: #ffffff;
+        #image-preview {
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>עורך קוד אישי</h1>
+    <h1>עורך תמונות בסיסי - SwiftClip</h1>
+    <p>העלה תמונה והוסף מדבקה פשוטה. זו הדגמה קטנה של תכונה אחת.</p>
+
+    <div id="tools">
+        <label for="image-upload">בחר תמונה:</label>
+        <input type="file" id="image-upload" accept="image/*">
+        <button id="add-sticker-btn">הוסף מדבקה (לב)</button>
     </div>
 
-    <div class="main-container">
-        <div class="code-editors-container">
-            <div class="editor-container">
-                <div class="editor-label">HTML</div>
-                <textarea id="html-editor" class="editor-textarea" spellcheck="false" placeholder="כתוב כאן את קוד ה-HTML שלך..."></textarea>
-            </div>
-            <div class="editor-container">
-                <div class="editor-label">CSS</div>
-                <textarea id="css-editor" class="editor-textarea" spellcheck="false" placeholder="כתוב כאן את קוד ה-CSS שלך..."></textarea>
-            </div>
-            <div class="editor-container">
-                <div class="editor-label">JavaScript</div>
-                <textarea id="js-editor" class="editor-textarea" spellcheck="false" placeholder="כתוב כאן את קוד ה-JavaScript שלך..."></textarea>
-            </div>
-        </div>
-        <div class="run-button-container">
-            <button class="check-button" id="run-code">הצג תוצאה</button>
-        </div>
-        <div class="result-panel">
-            <iframe id="result-frame" class="result-iframe"></iframe>
-        </div>
-    </div>
+    <div id="editor-container"></div>
 
     <script>
-        const htmlEditor = document.getElementById('html-editor');
-        const cssEditor = document.getElementById('css-editor');
-        const jsEditor = document.getElementById('js-editor');
-        const resultFrame = document.getElementById('result-frame');
-        const runCodeButton = document.getElementById('run-code');
+        const width = 800;
+        const height = 600;
 
-        function updateOutput() {
-            const htmlCode = htmlEditor.value;
-            const cssCode = cssEditor.value ? `<style>${cssEditor.value}</style>` : '';
-            const jsCode = jsEditor.value ? `<script>${jsEditor.value}</script>` : '';
-            
-            const fullCode = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Preview</title>
-                    ${cssCode}
-                </head>
-                <body>
-                    ${htmlCode}
-                    ${jsCode}
-                </body>
-                </html>
-            `;
-            
-            resultFrame.srcdoc = fullCode;
-        }
+        // יצירת הבמה (Stage) של Konva שבה הכל יקרה
+        const stage = new Konva.Stage({
+            container: 'editor-container',
+            width: width,
+            height: height,
+        });
 
-        runCodeButton.addEventListener('click', updateOutput);
+        const layer = new Konva.Layer();
+        stage.add(layer);
+
+        let imageNode = null;
+
+        // פונקציה להעלאת תמונה
+        document.getElementById('image-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // הסרת התמונה הקודמת אם קיימת
+                    if (imageNode) {
+                        imageNode.destroy();
+                    }
+                    
+                    // יצירת אובייקט תמונה ב-Konva
+                    imageNode = new Konva.Image({
+                        image: img,
+                        width: width,
+                        height: height,
+                        draggable: false // לא מאפשר גרירה של התמונה עצמה
+                    });
+                    layer.add(imageNode);
+                    layer.draw();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // פונקציה להוספת מדבקה (במקרה זה, טקסט פשוט)
+        document.getElementById('add-sticker-btn').addEventListener('click', function() {
+            if (!imageNode) {
+                alert('אנא העלה תמונה קודם!');
+                return;
+            }
+
+            const sticker = new Konva.Text({
+                x: width / 2,
+                y: height / 2,
+                text: '❤️',
+                fontSize: 100,
+                fill: 'red',
+                draggable: true // ניתן לגרור את המדבקה
+            });
+            layer.add(sticker);
+            layer.draw();
+        });
     </script>
+
 </body>
 </html>
+
